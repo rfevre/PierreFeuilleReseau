@@ -1,6 +1,6 @@
 package fr.lille1.iut.pierrefeuillereseau;
 
-public class Partie {
+public class Partie implements Comparable<Partie> {
   private String createur;
   private String challenger;
   private String id;
@@ -64,10 +64,11 @@ public class Partie {
   // Fin Getters / Setters
 
   public String toString() {
-    return "Partie : \nCréée par :\t" + this.getCreateur()
-    + "; Challenger :\t"+this.getChallenger()
-    + "; Id : \t"+this.getId()
-    + "; Nb Manches :\t"+this.getNbManches()
-    + "; Nb Joueurs : \t" + this.getNbJoueurs();
+    return this.getId();
+  }
+
+  public int compareTo(Partie o){
+    System.out.println(o.getId());
+    return o.getId().equals(getId()) ? 0 : -1;
   }
 }

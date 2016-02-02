@@ -24,6 +24,7 @@ public class Serveur {
 		InetAddress address;
 		int port;
 		while ( true ) {
+
 			// Attente de réception d'un datagramme
 			String msg = receive();
 
@@ -110,16 +111,24 @@ public class Serveur {
 	}
 
 	/**
+	* Vérifie l'identifiant d'une partie
+	*/
+	private boolean checkId(String nom) {
+		// TODO vérifier la map de parties
+		return true;
+	}
+
+	/**
 	* Vérifie que le message est correct et correspond à une des commandes utilisateur
 	*/
 	private boolean verifierMessage(String command) {
-		return !(!command.equals("CREATE")
-		&& !command.equals("JOIN")
-		&& !command.equals("ROCK")
-		&& !command.equals("PAPER")
-		&& !command.equals("SCISSCORS")
-		&& !command.equals("DISCONNECT")
-		&& !command.equals("CLOSE"));
+		return (command.equals("CREATE")
+		|| command.equals("JOIN")
+		|| command.equals("ROCK")
+		|| command.equals("PAPER")
+		|| command.equals("SCISSCORS")
+		|| command.equals("DISCONNECT")
+		|| command.equals("CLOSE"));
 	}
 
 	/**
@@ -129,16 +138,20 @@ public class Serveur {
 		if(((mess.split(":")).length != 5) || (!checkId(getId(mess))))
 			return "KO";
 		p = new Partie(getPseudo(mess), getId(mess), getNbJoueurs(mess), getNbManches(mess));
-		System.out.println(p);
-		return p.toString();
+		//TODO : Corriger le fait qu'il ne trouve pas la partie avec le meme ID
+		if(parties.containsKey(p))
+			return "KO";
+		parties.put(p, 0);
+		return "OK";
 	}
 
 	/**
-	* Vérifie l'identifiant d'une partie
+	* Rejoindre une partie
 	*/
-	private boolean checkId(String nom) {
-		// TODO vérifier la map de parties
-		return true;
+	private String rejoindrePartie(String mess) {
+		if(((mess.split(":")).length != 3) || (!checkId(getId(mess))))
+			return "ERROR";
+		return "READY";
 	}
 
 	private String receive() throws IOException {
