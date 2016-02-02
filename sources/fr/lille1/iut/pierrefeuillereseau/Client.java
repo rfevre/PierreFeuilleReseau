@@ -11,10 +11,10 @@ public class Client {
 	private final static int _dgLength = 50;
 	private DatagramSocket dgSocket;
 	private DatagramPacket dgPacket;
-	private static Client client;
+	private Scanner sc;
 
 	public Client() throws IOException {
-		client = new Client();
+		sc = new Scanner(System.in);
 		dgSocket = new DatagramSocket();
 	}
 
@@ -34,7 +34,15 @@ public class Client {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Scanner	sc = new Scanner(System.in);
+		Client client = new Client();
+		client.start();
+
+		// String msg = "Hello ";
+		// client.send(msg, InetAddress.getByName("localhost"), Integer.parseInt("3630"));
+		// System.out.println(client.receive());
+	}
+
+	public void start() throws IOException {
 		char carac;
 		String reponse;
 
@@ -48,22 +56,18 @@ public class Client {
 			reponse = sc.nextLine();
 			carac = reponse.charAt(0);
 			if (carac == '1') {
-				creerPartie();
+				this.creerPartie();
 			}
 			else if (carac == '2') {
-				rejoindrePartie();
+				this.rejoindrePartie();
 			}
 			else if (carac == 'q') {
 				System.out.println("Quittage en cours ...");
 			}
 		} while (carac != 'q');
-		// String msg = "Hello ";
-		// client.send(msg, InetAddress.getByName("localhost"), Integer.parseInt("3630"));
-		// System.out.println(client.receive());
 	}
 
-	private static void creerPartie() throws IOException {
-		Scanner	sc = new Scanner(System.in);
+	private void creerPartie() throws IOException {
 		String pseudo, idPartie;
 		int nbJoueurs, nbManches;
 
@@ -77,13 +81,11 @@ public class Client {
 
 		// `CREATE:PSEUDO:ID_PARTIE:NB_JOUEURS:NB_MANCHES`
 		String requete = "CREATE:"+pseudo+":"+idPartie+":2:"+nbManches;
-		client.send(requete, InetAddress.getByName("localhost"), 3630);
-	 	System.out.println(client.receive());
+		this.send("test", InetAddress.getByName("localhost"), 3630);
+	 	System.out.println(this.receive());
 	}
 
-	private static void rejoindrePartie() throws IOException {
-		Scanner	sc = new Scanner(System.in);
-
+	private void rejoindrePartie() throws IOException {
 		System.out.println("C'est oui !");
 		String str = sc.nextLine();
 	}
