@@ -93,7 +93,12 @@ public class Client {
 		// `CREATE:PSEUDO:ID_PARTIE:NB_JOUEURS:NB_MANCHES`
 		String requete = "CREATE:"+pseudo+":"+idPartie+":2:"+nbManches;
 		send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
-	 	System.out.println(receive());
+	 	if(receive().equals("OK")){
+			System.out.println("Partie créée.");
+			lancementPartie();
+		} else {
+			System.out.println("Erreur lors de la création de la partie.");
+		}
 	}
 
 	private void rejoindrePartie() throws IOException {
@@ -103,12 +108,16 @@ public class Client {
 		System.out.println("Choisissez un identifiant pour la partie ?");
 		idPartie = sc.nextLine();
 
+		// `JOIN:PSEUDO:ID_PARTIE`
 		String requete = "JOIN:"+pseudo+":"+idPartie;
 		send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
 		String temp;
-		while(!(temp = receive()).equals("GO")) {
+		while(!(temp = receive()).equals("READY")) {
 			System.out.println(temp);
 		}
+	}
+
+	private void lancementPartie() throws IOException {
 	}
 
 }
