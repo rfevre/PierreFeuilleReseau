@@ -44,12 +44,7 @@ public class Client {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Client client;
-		if (args[0] != null && args[1] != null) {
-			client = new Client(args[0],args[1]);
-		} else {
-			client = new Client();
-		}
+		Client client = new Client();
 		client.start();
 
 		// String msg = "Hello ";
