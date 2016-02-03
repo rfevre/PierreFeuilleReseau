@@ -12,12 +12,11 @@ public class Serveur {
 	private int _udpPort = 3630;
 	private DatagramSocket dgSocket;
 	private DatagramPacket dgPacket;
-	private Map<Partie, Integer> parties;
 	private Partie p;
 
 	public Serveur() throws IOException {
 		dgSocket = new DatagramSocket(_udpPort);
-		this.parties = new HashMap<Partie, Integer>();
+		p = null;
 	}
 
 	private void go() throws IOException {
@@ -50,7 +49,7 @@ public class Serveur {
 					ret = creerPartie(mess);
 					break;
 				case "JOIN":
-					ret = "JOIN";
+					ret = rejoindrePartie(mess);
 					break;
 				case "ROCK":
 					ret = "ROCK";
@@ -135,13 +134,9 @@ public class Serveur {
 	* Créer la partie et envoie une message de retour selon le resultat
 	*/
 	private String creerPartie(String mess) {
-		if(((mess.split(":")).length != 5) || (!checkId(getId(mess))))
+		if(((mess.split(":")).length != 5) || (!checkId(getId(mess))) || (p != null))
 			return "KO";
 		p = new Partie(getPseudo(mess), getId(mess), getNbJoueurs(mess), getNbManches(mess));
-		//TODO : Corriger le fait qu'il ne trouve pas la partie avec le meme ID
-		if(parties.containsKey(p))
-			return "KO";
-		parties.put(p, 0);
 		return "OK";
 	}
 
@@ -149,7 +144,7 @@ public class Serveur {
 	* Rejoindre une partie
 	*/
 	private String rejoindrePartie(String mess) {
-		if(((mess.split(":")).length != 3) || (!checkId(getId(mess))))
+		if(((mess.split(":")).length != 3) || (!checkId(getId(mess))) || (p == null))
 			return "ERROR";
 		return "READY";
 	}

@@ -97,8 +97,18 @@ public class Client {
 	}
 
 	private void rejoindrePartie() throws IOException {
-		System.out.println("C'est oui !");
-		String str = sc.nextLine();
+		String pseudo, idPartie;
+		System.out.println("Choisissez un pseudonyme ?");
+		pseudo = sc.nextLine();
+		System.out.println("Choisissez un identifiant pour la partie ?");
+		idPartie = sc.nextLine();
+
+		String requete = "JOIN:"+pseudo+":"+idPartie;
+		send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
+		String temp;
+		while(!(temp = receive()).equals("GO")) {
+			System.out.println(temp);
+		}
 	}
 
 }
