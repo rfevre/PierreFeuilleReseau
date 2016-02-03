@@ -12,10 +12,20 @@ public class Client {
 	private DatagramSocket dgSocket;
 	private DatagramPacket dgPacket;
 	private Scanner sc;
+	private String adresse,port;
 
 	public Client() throws IOException {
-		sc = new Scanner(System.in);
-		dgSocket = new DatagramSocket();
+		this.adresse = "localhost";
+		this.port = "3630";
+		this.sc = new Scanner(System.in);
+		this.dgSocket = new DatagramSocket();
+	}
+
+	public Client(String adresse,String port) throws IOException {
+		this.adresse = adresse;
+		this.port = port;
+		this.sc = new Scanner(System.in);
+		this.dgSocket = new DatagramSocket();
 	}
 
 	private String receive() throws IOException {
@@ -34,7 +44,12 @@ public class Client {
 	}
 
 	public static void main(String[] args) throws IOException {
-		Client client = new Client();
+		Client client;
+		if (args[0] != null && args[1] != null) {
+			client = new Client(args[0],args[1]);
+		} else {
+			client = new Client();
+		}
 		client.start();
 
 		// String msg = "Hello ";
@@ -47,6 +62,7 @@ public class Client {
 		String reponse;
 
 		do {
+			reponse="";
 			System.out.println("================================================================================");
 			System.out.println("Bonjour, et bienvenue sur le Pierre Feuille Reseau !");
 			System.out.println("1 => Créer une partie");
@@ -76,13 +92,13 @@ public class Client {
 		System.out.println("Choisissez un identifiant pour la partie ?");
 		idPartie = sc.nextLine();
 		System.out.println("Choisissez un nombre de manches pour la partie ?");
-		sc.nextLine();
 		nbManches = sc.nextInt();
+		sc.nextLine();
 
 		// `CREATE:PSEUDO:ID_PARTIE:NB_JOUEURS:NB_MANCHES`
 		String requete = "CREATE:"+pseudo+":"+idPartie+":2:"+nbManches;
-		this.send("test", InetAddress.getByName("localhost"), 3630);
-	 	System.out.println(this.receive());
+		send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
+	 	System.out.println(receive());
 	}
 
 	private void rejoindrePartie() throws IOException {
