@@ -58,6 +58,7 @@ public class Client {
 
 		do {
 			reponse="";
+			carac='0';
 			System.out.println("================================================================================");
 			System.out.println("Bonjour, et bienvenue sur le Pierre Feuille Reseau !");
 			System.out.println("1 => Créer une partie");
@@ -78,8 +79,8 @@ public class Client {
 		} while (carac != 'q');
 	}
 
-	private void creerPartie() throws IOException {
-		String pseudo, idPartie;
+	private void creerPartie() throws IOException{
+		String pseudo, idPartie, tmp;
 		int nbJoueurs, nbManches;
 
 		System.out.println("Choisissez un pseudonyme ?");
@@ -92,17 +93,20 @@ public class Client {
 
 		// `CREATE:PSEUDO:ID_PARTIE:NB_JOUEURS:NB_MANCHES`
 		String requete = "CREATE:"+pseudo+":"+idPartie+":2:"+nbManches;
-		send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
-	 	if(receive().equals("OK")){
-			System.out.println("Partie créée.");
-			lancementPartie();
-		} else {
-			System.out.println("Erreur lors de la création de la partie.");
-		}
+		do {
+			send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
+			tmp = receive();
+			if(tmp.equals("KO")) {
+				System.out.println("Probléme création : " + tmp);
+				start();
+			}
+		}while(!tmp.equals("OK"));
+		System.out.println("Partie créée => " + tmp);
+		lancementPartie();
 	}
 
 	private void rejoindrePartie() throws IOException {
-		String pseudo, idPartie;
+		String pseudo, idPartie, tmp;
 		System.out.println("Choisissez un pseudonyme ?");
 		pseudo = sc.nextLine();
 		System.out.println("Choisissez un identifiant pour la partie ?");
@@ -110,14 +114,23 @@ public class Client {
 
 		// `JOIN:PSEUDO:ID_PARTIE`
 		String requete = "JOIN:"+pseudo+":"+idPartie;
-		send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
-		String temp;
-		while(!(temp = receive()).equals("READY")) {
-			System.out.println(temp);
-		}
+		do {
+			send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
+			tmp = receive();
+			if(tmp.equals("ERROR")) {
+				System.out.println("Erreur lors du rejoiement : " + tmp);
+				start();
+			}
+			else if(tmp.equals("WAIT")) {
+				System.out.println("Connexion réussie, en attente des autres joueurs : " + tmp);
+			}
+		}while(!tmp.equals("READY"));
+		System.out.println("Partie ready => " + tmp);
+		lancementPartie();
 	}
 
 	private void lancementPartie() throws IOException {
+		System.out.println("Partie lancée !");
 	}
 
 }
