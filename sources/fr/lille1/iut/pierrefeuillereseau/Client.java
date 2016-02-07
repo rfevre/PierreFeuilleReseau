@@ -148,9 +148,10 @@ public class Client {
 			do {
 				send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
 				tmp = receive();
-				System.out.println(tmp);
+				if(!tmp.equals("WAIT"))
+					System.out.println(tmp);
 			}while(tmp.equals("WAIT"));
-		}while(true);
+		}while(!(tmp.split(":"))[1].equals("KO"));
 	}
 
 }

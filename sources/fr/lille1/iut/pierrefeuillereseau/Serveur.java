@@ -14,10 +14,12 @@ public class Serveur {
 	private DatagramPacket dgPacket;
 	private Partie p;
 	private String status;
+	private int i;
 
 	public Serveur() throws IOException {
 		dgSocket = new DatagramSocket(_udpPort);
 		p = null;
+		i = 0;
 	}
 
 	private void go() throws IOException {
@@ -25,6 +27,9 @@ public class Serveur {
 		int port;
 		status = "CREATE";
 		while ( true ) {
+			if(status.equals("FINISHED")) {
+				status = "CREATE";
+			}
 
 			// Attente de réception d'un datagramme
 			String msg = receive();
@@ -173,26 +178,55 @@ public class Serveur {
 			return "ERROR";
 		}
 
-		System.out.println(p.getChoixJ1() + " / " + p.getChoixJ2());
+		// System.out.println(p.getChoixJ1() + " / " + p.getChoixJ2());
 		if(p.getChoixJ1() != null && p.getChoixJ2() != null) {
 			return result(mess);
 		}
-
-		String j = getPseudo(mess);
-		if(j.equals(p.getCreateur())) {
-			if(p.getChoixJ1() == null) {
-				p.setChoixJ1(getChoix(mess));
-			}
-			return "WAIT";
+		else {
+				String j = getPseudo(mess);
+				if(j.equals(p.getCreateur())) {
+					if(p.getChoixJ1() == null) {
+						p.setChoixJ1(getChoix(mess));
+					}
+					return "WAIT";
+				}
+				else if (j.equals(p.getChallenger())) {
+					if(p.getChoixJ2() == null) {
+						p.setChoixJ2(getChoix(mess));
+					}
+					return "WAIT";
+				}
+				else {
+					return "ERROR";
+				}
 		}
-		else if (j.equals(p.getChallenger())) {
-			if(p.getChoixJ2() == null) {
-				p.setChoixJ2(getChoix(mess));
+	}
+
+	private void calculerResult(String mess) {
+		System.out.println("Calcul du score...");
+		if(p.getChoixJ1().equals("ROCK")) {
+			if(p.getChoixJ2().equals("PAPER")) {
+				p.setScoreJ2(p.getScoreJ2() + 1);
 			}
-			return "WAIT";
+			else if(p.getChoixJ2().equals("SCISSORS")) {
+				p.setScoreJ1(p.getScoreJ1() + 1);
+			}
+		}
+		else if(p.getChoixJ1().equals("PAPER")) {
+			if(p.getChoixJ2().equals("SCISSORS")) {
+				p.setScoreJ2(p.getScoreJ2() + 1);
+			}
+			else if(p.getChoixJ2().equals("ROCK")) {
+				p.setScoreJ1(p.getScoreJ1() + 1);
+			}
 		}
 		else {
-			return "ERROR";
+			if(p.getChoixJ2().equals("ROCK")) {
+				p.setScoreJ2(p.getScoreJ2() + 1);
+			}
+			else if(p.getChoixJ2().equals("PAPER")) {
+				p.setScoreJ1(p.getScoreJ1() + 1);
+			}
 		}
 	}
 
@@ -200,42 +234,65 @@ public class Serveur {
 	* On construit la requete de retour avec de la manche + les scores et on incremente les scores
 	*/
 	private String result(String mess) {
-		if(getPseudo(mess).equals(p.getCreateur())) {
-			if(p.getChoixJ1().equals("ROCK")) {
-				if(p.getChoixJ2().equals("PAPER")) {
-					p.setScoreJ2(p.getScoreJ2() + 1);
-				}
-				else if(p.getChoixJ2().equals("SCISSORS")) {
-					p.setScoreJ1(p.getScoreJ1() + 1);
-				}
-			}
-			else if(p.getChoixJ1().equals("PAPER")) {
-				if(p.getChoixJ2().equals("SCISSORS")) {
-					p.setScoreJ2(p.getScoreJ2() + 1);
-				}
-				else if(p.getChoixJ2().equals("ROCK")) {
-					p.setScoreJ1(p.getScoreJ1() + 1);
-				}
-			}
-			else {
-				if(p.getChoixJ2().equals("ROCK")) {
-					p.setScoreJ2(p.getScoreJ2() + 1);
-				}
-				else if(p.getChoixJ2().equals("PAPER")) {
-					p.setScoreJ1(p.getScoreJ1() + 1);
-				}
-			}
+		/*
+		i == 0 : Aucune réponse envoyé
+		i == 1 : Joueur 1 a déjà recu la réponse
+		i == 2 : Joueur 2 a déjà recu la réponse
+		i == 3 : Les deux joueurs ont recu la réponse
+		*/
+		if(i == 0) {
+			calculerResult(mess);
 		}
-		String ret = p.getChoixJ1() + ":" + p.getChoixJ2() + ":" + p.getScoreJ1() + ":" + p.getScoreJ2() + ":" + p.getNbManches();
-
-		if(getPseudo(mess).equals(p.getCreateur())) {
-			p.setChoixJ1(null);
+		String ret;
+		if(!isFinished()) {
+			ret = p.getChoixJ1() + ":" + p.getChoixJ2() + ":" + p.getScoreJ1() + ":" + p.getScoreJ2() + ":" + p.getNbManches();
 		}
 		else {
-			p.setChoixJ2(null);
+			ret = p.getId()+":KO:";
+			if(p.getScoreJ1() > p.getScoreJ2()) {
+				ret += p.getCreateur() + ":" + p.getScoreJ1();
+			}
+			else if(p.getScoreJ1() < p.getScoreJ2()) {
+				ret += p.getChallenger() + ":" + p.getScoreJ2();
+			}
+			else {
+				ret += "x:" + p.getScoreJ2();
+			}
 		}
 
+		if(getPseudo(mess).equals(p.getCreateur())) {
+			if(i == 0) {
+				i = 1;
+			}
+			else if (i == 2) {
+				i = 3;
+			}
+		}
+		else if(getPseudo(mess).equals(p.getChallenger())) {
+			if(i == 0) {
+				i = 2;
+			}
+			else if (i == 1) {
+				i = 3;
+			}
+		}
+		if(i == 3) {
+			i = 0;
+			if(isFinished()) {
+				p = null;
+			}
+			else {
+				p.setChoixJ1(null);
+				p.setChoixJ2(null);
+			}
+		}
+
+		System.out.println("Envoie du score...");
 		return ret;
+	}
+
+	private boolean isFinished() {
+		return (p.getScoreJ1() + p.getScoreJ2() >= p.getNbManches());
 	}
 
 	private String receive() throws IOException {
