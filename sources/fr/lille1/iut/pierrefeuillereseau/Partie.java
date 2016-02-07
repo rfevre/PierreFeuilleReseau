@@ -6,6 +6,10 @@ public class Partie implements Comparable<Partie> {
   private String id;
   private int nbJoueurs;
   private int nbManches;
+  private String choixJ1;
+  private String choixJ2;
+  private int scoreJ1;
+  private int scoreJ2;
 
   public Partie(String cr, String ch, String id, int nbJ, int nbM) {
     this.createur = cr;
@@ -61,10 +65,42 @@ public class Partie implements Comparable<Partie> {
     this.nbManches = n;
   }
 
+  public String getChoixJ1() {
+    return choixJ1;
+  }
+
+  public void setChoixJ1(String c) {
+    choixJ1 = c;
+  }
+
+  public String getChoixJ2() {
+    return choixJ2;
+  }
+
+  public void setChoixJ2(String c) {
+    choixJ2 = c;
+  }
+
+  public int getScoreJ1() {
+    return scoreJ1;
+  }
+
+  public void setScoreJ1(int s) {
+    this.scoreJ1 = s;
+  }
+
+  public int getScoreJ2() {
+    return scoreJ2;
+  }
+
+  public void setScoreJ2(int s) {
+    this.scoreJ2 = s;
+  }
+
   // Fin Getters / Setters
 
   public String toString() {
-    return this.getId();
+    return "Createur : " + getCreateur() + ", challenger : " + getChallenger();
   }
 
   public int compareTo(Partie o){

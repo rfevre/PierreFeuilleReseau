@@ -13,6 +13,7 @@ public class Client {
 	private DatagramPacket dgPacket;
 	private Scanner sc;
 	private String adresse,port;
+	private String pseudo, idPartie;
 
 	public Client() throws IOException {
 		this.adresse = "localhost";
@@ -80,7 +81,7 @@ public class Client {
 	}
 
 	private void creerPartie() throws IOException{
-		String pseudo, idPartie, tmp;
+		String tmp;
 		int nbJoueurs, nbManches;
 
 		System.out.println("Choisissez un pseudonyme ?");
@@ -100,13 +101,16 @@ public class Client {
 				System.out.println("Probléme création : " + tmp);
 				start();
 			}
-		}while(!tmp.equals("OK"));
+			else if (tmp.equals("OK")) {
+				System.out.println("Partie créée => " + tmp + ", en attente d'un joueur.");
+			}
+		}while(!tmp.equals("READY"));
 		System.out.println("Partie créée => " + tmp);
 		lancementPartie();
 	}
 
 	private void rejoindrePartie() throws IOException {
-		String pseudo, idPartie, tmp;
+		String tmp;
 		System.out.println("Choisissez un pseudonyme ?");
 		pseudo = sc.nextLine();
 		System.out.println("Choisissez un identifiant pour la partie ?");
@@ -131,6 +135,22 @@ public class Client {
 
 	private void lancementPartie() throws IOException {
 		System.out.println("Partie lancée !");
+		String tmp;
+		String choix = null;
+		do {
+			do {
+				System.out.println("ROCK/PAPER/SCISSORS ?");
+				choix = sc.nextLine();
+			}while((!choix.equals("ROCK")) && (!choix.equals("PAPER")) && (!choix.equals("SCISSORS")));
+
+			String requete = choix + ":" + pseudo + ":" + idPartie;
+
+			do {
+				send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
+				tmp = receive();
+				System.out.println(tmp);
+			}while(tmp.equals("WAIT"));
+		}while(true);
 	}
 
 }

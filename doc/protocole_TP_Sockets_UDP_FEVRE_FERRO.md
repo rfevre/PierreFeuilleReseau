@@ -15,6 +15,8 @@
   - #### Serveur :
     - `OK/KO`
       - `OK` : Partie créée avec succès.
+      - `WAIT` : Partie déjà lancée mais en attente d'un utiliateur
+      - `READY` : Tous les joueurs ont rejoint.
       - `KO` : Erreur à la création de la partie.
 
 - ### Connexion :
