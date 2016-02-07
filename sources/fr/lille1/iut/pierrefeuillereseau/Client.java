@@ -47,10 +47,6 @@ public class Client {
 	public static void main(String[] args) throws IOException {
 		Client client = new Client();
 		client.start();
-
-		// String msg = "Hello ";
-		// client.send(msg, InetAddress.getByName("localhost"), Integer.parseInt("3630"));
-		// System.out.println(client.receive());
 	}
 
 	public void start() throws IOException {
@@ -105,7 +101,7 @@ public class Client {
 				System.out.println("Partie créée => " + tmp + ", en attente d'un joueur.");
 			}
 		}while(!tmp.equals("READY"));
-		System.out.println("Partie créée => " + tmp);
+		System.out.println("Partie ready => " + tmp);
 		lancementPartie();
 	}
 
@@ -122,7 +118,7 @@ public class Client {
 			send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
 			tmp = receive();
 			if(tmp.equals("ERROR")) {
-				System.out.println("Erreur lors du rejoiement : " + tmp);
+				System.out.println("Probleme pour rejoindre la partie : " + tmp);
 				start();
 			}
 			else if(tmp.equals("WAIT")) {
