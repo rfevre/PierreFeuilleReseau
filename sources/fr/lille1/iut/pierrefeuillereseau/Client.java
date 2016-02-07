@@ -102,7 +102,7 @@ public class Client {
 			}
 		}while(!tmp.equals("READY"));
 		System.out.println("Partie ready => " + tmp);
-		lancementPartie();
+		lancementPartie("Createur");
 	}
 
 	private void rejoindrePartie() throws IOException {
@@ -126,26 +126,50 @@ public class Client {
 			}
 		}while(!tmp.equals("READY"));
 		System.out.println("Partie ready => " + tmp);
-		lancementPartie();
+		lancementPartie("Challenger");
 	}
 
-	private void lancementPartie() throws IOException {
+	private void lancementPartie(String status) throws IOException {
 		System.out.println("Partie lancée !");
-		String tmp;
-		String choix = null;
+		String tmp, choix = null;
+		Integer numManche = 0;
 		do {
 			do {
-				System.out.println("ROCK/PAPER/SCISSORS ?");
+				System.out.println("================================================================================");
+				System.out.println("Votre choix ROCK/PAPER/SCISSORS ?");
 				choix = sc.nextLine();
 			}while((!choix.equals("ROCK")) && (!choix.equals("PAPER")) && (!choix.equals("SCISSORS")));
 
 			String requete = choix + ":" + pseudo + ":" + idPartie;
+			System.out.println("En attente du choix du second joueur !");
 
 			do {
 				send(requete, InetAddress.getByName(adresse), Integer.parseInt(port));
 				tmp = receive();
-				if(!tmp.equals("WAIT"))
-					System.out.println(tmp);
+				if(!tmp.equals("WAIT")) {
+					System.out.println("================================================================================");
+					if (tmp.split(":")[1].equals("KO")) {
+						if (tmp.split(":")[2].equals("x")) {
+							System.out.println("Egalité avec " + tmp.split(":")[3] + " points partout");
+						} else {
+							System.out.println("Le gagnant est : " + tmp.split(":")[2] + " avec " + tmp.split(":")[3] + " points");
+						}
+					} else {
+						numManche++;
+						if(status.equals("Createur")) {
+							System.out.println("Votre choix : "+tmp.split(":")[0]);
+							System.out.println("Choix adverse : "+tmp.split(":")[1]);
+							System.out.println("Vos points : "+tmp.split(":")[2]);
+							System.out.println("Points adverse : "+tmp.split(":")[3]);
+						} else {
+							System.out.println("Votre choix : "+tmp.split(":")[1]);
+							System.out.println("Choix adverse : "+tmp.split(":")[0]);
+							System.out.println("Vos points : "+tmp.split(":")[3]);
+							System.out.println("Points adverse : "+tmp.split(":")[2]);
+						}
+						System.out.println("Nombres de manches : " + numManche + "/" + Integer.parseInt((tmp.split(":"))[4]));
+					}
+				}
 			}while(tmp.equals("WAIT"));
 		}while(!(tmp.split(":"))[1].equals("KO"));
 	}
