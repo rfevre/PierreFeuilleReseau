@@ -27,13 +27,9 @@ public class Serveur {
 		int port;
 		status = "CREATE";
 		while ( true ) {
-			if(status.equals("FINISHED")) {
-				status = "CREATE";
-			}
 
 			// Attente de réception d'un datagramme
 			String msg = receive();
-
 			// Vérification du message et création du message de retour :
 			String ret = process(msg);
 
@@ -51,6 +47,7 @@ public class Serveur {
 	private String process(String mess) {
 		String command;
 		String ret = "ERROR";
+		// System.out.println(msg);
 		if(verifierMessage(getCommand(mess)) && (mess.split(":")).length >= 3) {
 			command = getCommand(mess);
 			if(status.equals("CREATE") && command.equals("CREATE")) {
@@ -280,6 +277,8 @@ public class Serveur {
 			i = 0;
 			if(isFinished()) {
 				p = null;
+				System.out.println("Partie mise à null");
+				status = "CREATE";
 			}
 			else {
 				p.setChoixJ1(null);
